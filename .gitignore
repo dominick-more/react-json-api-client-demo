@@ -1,0 +1,26 @@
+# dotenv env files
+.env
+
+# yarn logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# node modules
+node_modules/
+
+# babel out
+dist/
+
+# tmp out (i.e. jest cache)
+tmp/
+
+# intellij
+.idea/
+
+# vs-code
+.vscode/
+workspace.code-workspace
+
+# macos meta data
+.DS_Store/

@@ -1,0 +1,591 @@
+{
+  "baseApiUrl": "/json-api/book-store/v1/",
+  "resources": {
+      "stores": {
+          "data": [
+              {
+                  "type": "stores",
+                  "id": "1",
+                  "attributes": {
+                      "name": "Strand Bookstore",
+                      "website": "https://www.strandbooks.com/",
+                      "rating": 4,
+                      "storeImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Strand_Bookstore.jpg/320px-Strand_Bookstore.jpg",
+                      "establishmentDate": "1927-01-01T00:00:00+0000"
+                  },
+                  "relationships": {
+                      "country": {
+                          "data": {
+                              "id": "6",
+                              "type": "countries"
+                          }
+                      },
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "1",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "2",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "8",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "stores",
+                  "id": "2",
+                  "attributes": {
+                      "name": "The Red Wheelbarrow",
+                      "website": "https://theredwheelbarrowbookstore.com/",
+                      "rating": 5,
+                      "storeImage": "https://images.unsplash.com/photo-1577058005446-f4380dcc4e08?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=388&q=80",
+                      "establishmentDate": "2001-04-30T00:00:00+0000"
+                  },
+                  "relationships": {
+                      "country": {
+                          "data": {
+                              "id": "3",
+                              "type": "countries"
+                          }
+                      },
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "1",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "2",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "3",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "4",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "5",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "6",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "7",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "8",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "stores",
+                  "id": "3",
+                  "attributes": {
+                      "name": "Kitab Khana",
+                      "website": "https://www.kitabkhana.in/",
+                      "rating": 3,
+                      "storeImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Kitab_Khana_Bookshop_Mumbai_-_outer_view.jpg/180px-Kitab_Khana_Bookshop_Mumbai_-_outer_view.jpg",
+                      "establishmentDate": "2010-02-03T00:00:00+0000"
+                  },
+                  "relationships": {
+                      "country": {
+                          "data": {
+                              "id": "7",
+                              "type": "countries"
+                          }
+                      },
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "4",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "stores",
+                  "id": "4",
+                  "attributes": {
+                      "name": "Kitazawa Bookstore",
+                      "website": "http://www.kitazawa.co.jp/",
+                      "rating": 5,
+                      "storeImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kitazawa_Foreign_Bookstore%2C_at_Kanda-Jinbocho.jpg/180px-Kitazawa_Foreign_Bookstore%2C_at_Kanda-Jinbocho.jpg",
+                      "establishmentDate": "1902-10-10T00:00:00+0000"
+                  },
+                  "relationships": {
+                      "country": {
+                          "data": {
+                              "id": "8",
+                              "type": "countries"
+                          }
+                      },
+                      "books": {
+                          "data": []
+                      }
+                  }
+              }
+          ]
+      },
+      "books": {
+          "data": [
+              {
+                  "type": "books",
+                  "id": "1",
+                  "attributes": {
+                      "name": "JavaScript: The Good Parts",
+                      "copiesSold": 154
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "1",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "1",
+                                  "type": "stores"
+                              },
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "2",
+                  "attributes": {
+                      "name": "JavaScript: The Definitive Guide",
+                      "copiesSold": 66
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "2",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "1",
+                                  "type": "stores"
+                              },
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "3",
+                  "attributes": {
+                      "name": "Learn JavaScript Visually",
+                      "copiesSold": 78
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "3",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "4",
+                  "attributes": {
+                      "name": "Eloquent JavaScript",
+                      "copiesSold": 111
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "4",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              },
+                              {
+                                  "id": "3",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "5",
+                  "attributes": {
+                      "name": "How JavaScript Works",
+                      "copiesSold": 33
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "1",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "6",
+                  "attributes": {
+                      "name": "Beautiful Code: Leading Programmers Explain How They Think",
+                      "copiesSold": 66
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "5",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "7",
+                  "attributes": {
+                      "name": "Canvas Pocket Reference: Scripted Graphics for HTML5",
+                      "copiesSold": 42
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "2",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "books",
+                  "id": "8",
+                  "attributes": {
+                      "name": "JavaScript Pocket Reference: Activate Your Web Pages",
+                      "copiesSold": 47
+                  },
+                  "relationships": {
+                      "author": {
+                          "data": {
+                              "id": "2",
+                              "type": "authors"
+                          }
+                      },
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "1",
+                                  "type": "stores"
+                              },
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              }
+          ]
+      },
+      "countries": {
+          "data": [
+              {
+                  "type": "countries",
+                  "id": "1",
+                  "attributes": {
+                      "code": "AU"
+                  },
+                  "relationships": {
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "3",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "countries",
+                  "id": "2",
+                  "attributes": {
+                      "code": "HR"
+                  },
+                  "relationships": {
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "4",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "countries",
+                  "id": "3",
+                  "attributes": {
+                      "code": "FR"
+                  },
+                  "relationships": {
+                      "stores": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "stores"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "countries",
+                  "id": "4",
+                  "attributes": {
+                      "code": "IS"
+                  },
+                  "relationships": {
+                      "stores": {
+                          "data": []
+                      }
+                  }
+              },
+              {
+                  "type": "countries",
+                  "id": "5",
+                  "attributes": {
+                      "code": "SE"
+                  },
+                  "relationships": {
+                      "stores": {
+                          "data": []
+                      }
+                  }
+              },
+              {
+                "type": "countries",
+                "id": "6",
+                "attributes": {
+                    "code": "US"
+                },
+                "relationships": {
+                    "stores": {
+                        "data": [
+                            {
+                                "id": "1",
+                                "type": "stores"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "countries",
+                "id": "7",
+                "attributes": {
+                    "code": "IN"
+                },
+                "relationships": {
+                    "stores": {
+                        "data": [
+                            {
+                                "id": "3",
+                                "type": "stores"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "countries",
+                "id": "8",
+                "attributes": {
+                    "code": "JP"
+                },
+                "relationships": {
+                    "stores": {
+                        "data": [
+                            {
+                                "id": "4",
+                                "type": "stores"
+                            }
+                        ]
+                    }
+                }
+            }
+          ]
+      },
+      "authors": {
+          "data": [
+              {
+                  "type": "authors",
+                  "id": "1",
+                  "attributes": {
+                      "fullName": "Douglas Crockford"
+                  },
+                  "relationships": {
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "1",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "5",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "authors",
+                  "id": "2",
+                  "attributes": {
+                      "fullName": "David Flanagan"
+                  },
+                  "relationships": {
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "2",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "7",
+                                  "type": "books"
+                              },
+                              {
+                                  "id": "8",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "authors",
+                  "id": "3",
+                  "attributes": {
+                      "fullName": "Ivelin Demirov"
+                  },
+                  "relationships": {
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "3",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "authors",
+                  "id": "4",
+                  "attributes": {
+                      "fullName": "Marijn Haverbeke"
+                  },
+                  "relationships": {
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "4",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "type": "authors",
+                  "id": "5",
+                  "attributes": {
+                      "fullName": "Greg Wilson"
+                  },
+                  "relationships": {
+                      "books": {
+                          "data": [
+                              {
+                                  "id": "6",
+                                  "type": "books"
+                              }
+                          ]
+                      }
+                  }
+              }
+          ]
+      }
+  }
+}

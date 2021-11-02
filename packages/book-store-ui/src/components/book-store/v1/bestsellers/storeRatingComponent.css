@@ -1,0 +1,30 @@
+.bestsellers-store-rating {
+    display: flex;
+    flex-direction: row;
+   	flex-wrap: nowrap;
+    gap: 0.25em;
+	align-items: center;
+	justify-content: space-evenly;
+    cursor: pointer;
+}
+
+.bestsellers-store-rating > button {
+    margin: 0px;
+    padding: 0px;
+    border-radius: unset;
+    border-style: none;
+    background-color: transparent;
+}
+
+.bestsellers-store-rating > button > svg {
+    align-items: center;
+	justify-items: center;
+    height: 1.5em;
+    width: 1.5em;
+    cursor: pointer;
+    fill: grey;
+}
+
+.bestsellers-store-rating > button[aria-checked="true"] > svg {
+    fill: #ffd055;
+}

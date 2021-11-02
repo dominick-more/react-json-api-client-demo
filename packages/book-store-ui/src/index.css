@@ -1,0 +1,12 @@
+@import url(~sanitize.css);
+
+#root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	background-color: rgb(127, 141, 165);
+    height: 100vh;
+    max-width: 100%;
+    min-width: 360px;
+    font-family: Arial, sans-serif;
+}
