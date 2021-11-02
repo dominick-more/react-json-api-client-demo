@@ -1,0 +1,44 @@
+.bestsellers-store-section {
+	max-width: 1024px;
+	width: calc(100% - 1rem);
+	border-radius: 0.5rem;
+	border-color: rgba(156, 163, 175);
+	background-color: rgba(209, 213, 219);
+	padding: 0.5rem;
+}
+
+.bestsellers-store-section > h1 {
+	display: inline-block;
+	width: 100%;
+	border-width: 0 0 1px;
+	border-style: solid;
+	font-size: 1.5rem;
+	font-weight: 600;
+}
+
+.bestsellers-store-list {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	column-gap: 1rem;
+	row-gap: 0.25rem;
+	max-height: 80vh;
+	min-height: 13.5rem;
+	width: 100%;
+	overflow: auto;
+}
+
+@media only screen and (max-width: 640px) {
+	.bestsellers-store-list {
+		min-height: 18rem;
+	}
+}
+
+.bestsellers-store-list-empty {
+	display: grid;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+	font-size: 1.1em;
+	font-weight: 500;
+}

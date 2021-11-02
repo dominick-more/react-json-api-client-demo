@@ -1,0 +1,39 @@
+{
+  "name": "book-store-api",
+  "description": "JSON API Bookstore REST Server",
+  "version": "0.0.1",
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "dev": "cd src && cross-env NODE_ENV=development nodemon --experimental-specifier-resolution=node index.js",
+    "lint": "eslint --no-error-on-unmatched-pattern --ext js,json ./src ./tests",
+    "lintfix": "eslint --no-error-on-unmatched-pattern --ext js,json --fix ./src ./tests",
+    "test": "jest"
+  },
+  "dependencies": {
+    "fake-json-api-server": "^1.7.0",
+    "yargs": "^17.2.1"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.5.0",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.0.1",
+    "jest": "^27.2.3",
+    "nodemon": "^2.0.0",
+    "prettier": "^2.4.0"
+  }
+}

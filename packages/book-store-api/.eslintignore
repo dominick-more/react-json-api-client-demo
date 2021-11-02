@@ -1,0 +1,6 @@
+coverage
+tmp
+node_modules
+*.log
+*.json
+*.md

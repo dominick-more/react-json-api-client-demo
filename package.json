@@ -1,0 +1,19 @@
+{
+  "name": "book-store-demo",
+  "description": "",
+  "version": "0.0.1",
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "client_dev": "yarn workspace book-store-ui dev",
+    "server_dev": "yarn workspace book-store-api dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn server_dev\"  \"yarn client_dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.1"
+  }
+}

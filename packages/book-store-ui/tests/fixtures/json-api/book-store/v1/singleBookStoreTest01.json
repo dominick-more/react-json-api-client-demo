@@ -1,0 +1,51 @@
+[
+  {
+    "type": "stores",
+    "id": "1",
+    "name": "Strand Bookstore",
+    "website": "https://www.strandbooks.com/",
+    "rating": 4,
+    "storeImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Strand_Bookstore.jpg/320px-Strand_Bookstore.jpg",
+    "establishmentDate": "1927-01-01T00:00:00+0000",
+    "country": {
+      "type": "countries",
+      "id": "6",
+      "code": "US"
+    },
+    "books": [
+      {
+        "type": "books",
+        "id": "1",
+        "name": "JavaScript: The Good Parts",
+        "copiesSold": 154,
+        "author": {
+          "type": "authors",
+          "id": "1",
+          "fullName": "Douglas Crockford"
+        }
+      },
+      {
+        "type": "books",
+        "id": "2",
+        "name": "JavaScript: The Definitive Guide",
+        "copiesSold": 66,
+        "author": {
+          "type": "authors",
+          "id": "2",
+          "fullName": "David Flanagan"
+        }
+      },
+      {
+        "type": "books",
+        "id": "8",
+        "name": "JavaScript Pocket Reference: Activate Your Web Pages",
+        "copiesSold": 47,
+        "author": {
+          "type": "authors",
+          "id": "2",
+          "fullName": "David Flanagan"
+        }
+      }
+    ]
+  }
+]
