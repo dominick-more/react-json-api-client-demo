@@ -15,7 +15,7 @@ import { Store } from '~/types/book-store/v1/store';
 import { Undefinable, ValueOf } from '~/types/common/commonJs';
 import { OrbitJsSourceNames } from '~/types/orbit-js/orbitJsContextValue';
 import { coerceAsArray, coerceAsReadonlyObject } from '~/utils/common/transformers';
-import { isError, isNil, isPlainObject } from '~/utils/common/typeGuards';
+import { isBlankString, isError, isNil, isPlainObject } from '~/utils/common/typeGuards';
 import { coerceOrbitCatchReasonAsError, isOrbitException } from '~/utils/orbit-js/orbitJSUtils';
 import StoreComponent from './storeComponent';
 import './storeListComponent.css';
@@ -215,7 +215,7 @@ const StoreListComponent = (): React.ReactElement => {
     }
     setPushRecoveryStrategy(undefined);
     invokeProcessRequestRequeue(['remote']);
-  }, [invokeProcessRequestRequeue, pushRecoveryStrategy, setPushRecoveryStrategy]);
+  }, [invokeProcessRequestRequeue, pushRecoveryStrategy]);
 
   // Execute orbit record to Store mapping on initial load and update
   useEffect((): void => {
@@ -272,7 +272,7 @@ const StoreListComponent = (): React.ReactElement => {
 
   // Memoize ClickRatingHandler handler
   const onClickRating: ClickRatingHandler = useMemo((): ClickRatingHandler => {
-    return (storeId, ratingValue) => {
+    return (storeId, ratingValue): void => {
       logger.debug(`Clicked store id ${storeId} rating value ${ratingValue}.`);
       const storeRecord = querySourceCache((qb) => qb.findRecord({ id: storeId, type: 'stores' }));
       if (isNil(storeRecord) || Array.isArray(storeRecord)) {
@@ -303,7 +303,14 @@ const StoreListComponent = (): React.ReactElement => {
           });
         });
     };
-  }, [invokeRecoverRequestQueue, querySourceCache, storeMapper, updateSource]);
+  }, [invokeRecoverRequestQueue, querySourceCache, updateSource]);
+
+  // Reload bookstores on demand
+  const onClickReloadBookstores = useMemo((): React.MouseEventHandler<HTMLButtonElement> => {
+    return (): void => {
+      setQueryStrategy('sync');
+    };
+  }, []);
 
   const storeComponents = bookStoreState.data.map((store: Store): React.ReactElement => {
     return <StoreComponent data={store} key={store.id} onClickRating={onClickRating} />;
@@ -311,7 +318,19 @@ const StoreListComponent = (): React.ReactElement => {
 
   return (
     <section className="bestsellers-store-section">
-      <h1>Bookstores</h1>
+      <div className="bestsellers-store-section-header">
+        <h1>Bookstores</h1>
+        <span>
+          <button
+            aria-label="Reload stores"
+            disabled={!isBlankString(queryStrategy)}
+            type="button"
+            onClick={onClickReloadBookstores}
+          >
+            Reload stores
+          </button>
+        </span>
+      </div>
       <div className="bestsellers-store-list">
         {storeComponents.length ? storeComponents : <div className="bestsellers-store-list-empty">No data available</div>}
       </div>

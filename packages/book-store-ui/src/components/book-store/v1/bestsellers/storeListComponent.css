@@ -1,18 +1,40 @@
 .bestsellers-store-section {
-	max-width: 1024px;
-	width: calc(100% - 1rem);
 	border-radius: 0.5rem;
 	border-color: rgba(156, 163, 175);
 	background-color: rgba(209, 213, 219);
 	padding: 0.5rem;
+	width: 100%;
 }
 
-.bestsellers-store-section > h1 {
+.bestsellers-store-section-header {
+	display: grid;
+	grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+	align-items: center;
+	justify-content: center;
+	column-gap: 1rem;
+	width: 100%;
+}
+.bestsellers-store-section-header > h1 {
 	display: inline-block;
 	width: 100%;
 	border-width: 0 0 1px;
-	border-style: solid;
+	border-style: none;
 	font-size: 1.5rem;
+	font-weight: 600;
+}
+
+.bestsellers-store-section-header > span {
+	display: inline-grid;
+	align-items: center;
+	justify-content: right;
+	height: 100%;
+}
+
+.bestsellers-store-section-header > span > button {
+	height: 2.5em;
+	width: 10em;
+	font-size: 0.8rem;
+	font-style: normal;
 	font-weight: 600;
 }
 

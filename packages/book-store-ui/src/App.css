@@ -1,0 +1,38 @@
+.app-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+	flex-direction: column;
+    flex-wrap: wrap;
+    max-width: 1024px;
+    width: calc(100% - 1rem);
+    flex-grow: 1;
+}
+
+.app-mount-toggle {
+    border: unset;
+    background-color: unset;
+    padding: 0.5rem 0;
+    width: 100%;
+}
+
+.app-mount-toggle > span {
+	display: inline-grid;
+	align-items: center;
+	justify-content: left;
+	height: 100%;
+    width: 100%;
+}
+
+.app-mount-toggle > span > button {
+	height: 2.5em;
+	width: 12em;
+	font-size: 0.8rem;
+	font-style: normal;
+	font-weight: 600;
+}
+
+.app-provider-container {
+    flex-grow: 2;
+    width: 100%;
+}
