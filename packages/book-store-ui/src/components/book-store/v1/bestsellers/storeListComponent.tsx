@@ -16,7 +16,7 @@ import { Undefinable, ValueOf } from '~/types/common/commonJs';
 import { OrbitJsSourceNames } from '~/types/orbit-js/orbitJsContextValue';
 import { coerceAsArray, coerceAsReadonlyObject } from '~/utils/common/transformers';
 import { isError, isNil, isPlainObject } from '~/utils/common/typeGuards';
-import { isOrbitException } from '~/utils/orbit-js/orbitJSUtils';
+import { coerceOrbitCatchReasonAsError, isOrbitException } from '~/utils/orbit-js/orbitJSUtils';
 import StoreComponent from './storeComponent';
 import './storeListComponent.css';
 import { ClickRatingHandler, normalizeRating } from './storeRatingComponent';
@@ -58,7 +58,9 @@ type QueryStrategy = 'cache' | 'sync';
 
 const isNetworkError = (error: any): boolean => {
   const maybeError = isOrbitException(error) ? error.error : error;
-  return isError(maybeError) && /\s*Network\s*error\s*:.*/i.test(maybeError.message);
+  return (
+    isError(maybeError) && /\s*(Network\s+error\s*:|Server\s+error\s*:\s*Gateway\s+Timeout).*/i.test(maybeError.message)
+  );
 };
 
 const StoreListComponent = (): React.ReactElement => {
@@ -172,7 +174,10 @@ const StoreListComponent = (): React.ReactElement => {
       if (isPlainObject(relationships.books) && Array.isArray(relationships.books.data)) {
         const bookRecords = coerceAsArray(
           querySourceCache((qb) =>
-            qb.findRelatedRecords(storeRecord, 'books').sort({ attribute: 'copiesSold', order: 'descending' })
+            qb
+              .findRelatedRecords(storeRecord, 'books')
+              .sort({ attribute: 'copiesSold', order: 'descending' })
+              .page({ offset: 0, limit: 2 })
           )
         );
         store.books = bookRecords
@@ -251,7 +256,7 @@ const StoreListComponent = (): React.ReactElement => {
         bookStoreActionDispatch({
           type: 'complete',
           payload: {
-            error,
+            error: coerceOrbitCatchReasonAsError(error),
           },
         });
       });
@@ -279,9 +284,7 @@ const StoreListComponent = (): React.ReactElement => {
           ? normalizedRating - 1
           : normalizedRating;
       logger.debug('Beginning bookStore source update.');
-      updateSource(
-        _merge({ ...storeRecord, attributes: { ...storeRecord.attributes } }, { attributes: { rating: effectiveRating } })
-      )
+      updateSource(_merge({ ...storeRecord }, { attributes: { rating: effectiveRating } }))
         .then(() => {
           logger.debug('Successfully completed bookStore source update.');
         })
@@ -295,7 +298,7 @@ const StoreListComponent = (): React.ReactElement => {
           bookStoreActionDispatch({
             type: 'complete',
             payload: {
-              error,
+              error: coerceOrbitCatchReasonAsError(error),
             },
           });
         });

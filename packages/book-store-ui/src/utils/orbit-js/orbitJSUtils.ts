@@ -1,7 +1,7 @@
 import { Exception as OrbitException } from '@orbit/core';
 import { Operation, RecordIdentity, Transform, UpdateRecordOperation } from '@orbit/data';
-import { PlainObject } from '~/types/common/commonJs';
-import { isNil, isPlainObject, isString } from '~/utils/common/typeGuards';
+import { PlainObject, Undefinable } from '~/types/common/commonJs';
+import { isBlankString, isError, isNil, isPlainObject, isString } from '~/utils/common/typeGuards';
 
 type RecordIdentityOperation = Operation & { record: RecordIdentity };
 
@@ -29,6 +29,33 @@ const isUpdateRecordOperation = (value: unknown): value is UpdateRecordOperation
   return isRecordIdentityOperation(value) && value.op === 'updateRecord';
 };
 
-export { isOperation, isOrbitException, isRecordIdentity, isRecordIdentityOperation, isTransform, isUpdateRecordOperation };
+const coerceOrbitCatchReasonAsError = (value: unknown, defMessage: string = 'An unknown error occured.'): Error => {
+  const resolveError = (): Undefinable<Error> => {
+    if (isNil(value)) {
+      return undefined;
+    }
+    if (isOrbitException(value)) {
+      return value.error;
+    }
+    if (isError(value)) {
+      return value;
+    }
+    if (isString(value) && !isBlankString(value)) {
+      return new Error(value.trim());
+    }
+    return undefined;
+  };
+  return resolveError() || new Error(defMessage);
+};
+
+export {
+  coerceOrbitCatchReasonAsError,
+  isOperation,
+  isOrbitException,
+  isRecordIdentity,
+  isRecordIdentityOperation,
+  isTransform,
+  isUpdateRecordOperation,
+};
 
 export type { RecordIdentityOperation };
