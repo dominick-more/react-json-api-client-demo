@@ -19,36 +19,34 @@ const providerProps: OrbitJsProviderParams = Object.freeze({
 
 const App = (): React.ReactElement => {
   const [mountStoreList, setMountStoreList] = useState<boolean>(true);
-  
+
   useEffect(() => {
     logger.setLevel('debug');
   }, []);
-  
+
   // Reload bookstores on demand
   const onClickToggleStoreListMount = useMemo((): React.MouseEventHandler<HTMLButtonElement> => {
     return (): void => {
       setMountStoreList(!mountStoreList);
-      };
-    }, [mountStoreList]);
-  
+    };
+  }, [mountStoreList]);
+
   return (
     <div className="app-container">
-    <div className="app-mount-toggle">
-      <span>
-          <button
-            aria-label="Mount/Unmount Store List"
-            type="button"
-            onClick={onClickToggleStoreListMount}
-          >
+      <div className="app-mount-toggle">
+        <span>
+          <button aria-label="Mount/Unmount Store List" type="button" onClick={onClickToggleStoreListMount}>
             {`${mountStoreList ? 'Unmount' : 'Mount'} store list`}
           </button>
         </span>
-    </div>
-    <div className="app-provider-container">
-      {mountStoreList && <OrbitJsProvider context={providerProps.context} jsonApiSource={providerProps.jsonApiSource}>
-        <StoreListComponent />
-      </OrbitJsProvider>}
-    </div>
+      </div>
+      <div className="app-provider-container">
+        {mountStoreList && (
+          <OrbitJsProvider context={providerProps.context} jsonApiSource={providerProps.jsonApiSource}>
+            <StoreListComponent />
+          </OrbitJsProvider>
+        )}
+      </div>
     </div>
   );
 };

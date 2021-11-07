@@ -1,35 +1,54 @@
 import { Exception as OrbitException } from '@orbit/core';
-import { Operation, RecordIdentity, Transform, UpdateRecordOperation } from '@orbit/data';
-import { PlainObject, Undefinable } from '~/types/common/commonJs';
-import { isBlankString, isError, isNil, isPlainObject, isString } from '~/utils/common/typeGuards';
+import { Operation, RecordIdentity, Source, Transform, UpdateRecordOperation } from '@orbit/data';
+import { PlainObject, Predicate, Undefinable, ValueOf } from '~/types/common/commonJs';
+import { OrbitJsSourceNames } from '~/types/orbit-js/orbitJsContextValue';
+import { arrayIncludesValue, isBlankString, isError, isNil, isPlainObject, isString } from '~/utils/common/typeGuards';
+import { coerceAsDefault } from '~/utils/common/transformers';
 
-type RecordIdentityOperation = Operation & { record: RecordIdentity };
+export type RecordIdentityOperation = Operation & { record: RecordIdentity };
 
-const isOperation = (value: unknown): value is Operation & PlainObject => {
-  return isPlainObject(value) && isString(value.op);
+export const createSourceNamesPredicate = (...sourceNames: Readonly<ValueOf<OrbitJsSourceNames>[]>): Predicate<Source> => {
+  return (source: Source) => arrayIncludesValue(source.name, sourceNames);
 };
 
-const isOrbitException = (value: unknown): value is OrbitException => {
+export const createSourceRequestQueueCurrentTaskTypePredicate = (taskTypeMatch: RegExp): Predicate<Source> => {
+  return (source: Source) => taskTypeMatch?.test(coerceAsDefault(source.requestQueue?.current?.type, ''));
+};
+
+export const sourceRequestQueueHasErrorPredicate = (source: Source) => !isNil(source.requestQueue?.error);
+
+export const isOrbitException = (value: unknown): value is OrbitException => {
   return !isNil(value) && value instanceof OrbitException;
 };
 
-const isRecordIdentity = (value: unknown): value is RecordIdentity & PlainObject => {
+const networkErrorMessageRegExp = /\s*(Network\s+error\s*:|Server\s+error\s*:\s*Gateway\s+Timeout).*/i;
+
+export const isNetworkError = (exceptionOrError: any): boolean => {
+  const maybeError = isOrbitException(exceptionOrError) ? exceptionOrError.error : exceptionOrError;
+  return isError(maybeError) && networkErrorMessageRegExp.test(maybeError.message);
+};
+
+export const isOperation = (value: unknown): value is Operation & PlainObject => {
+  return isPlainObject(value) && isString(value.op);
+};
+
+export const isRecordIdentity = (value: unknown): value is RecordIdentity & PlainObject => {
   return isPlainObject(value) && isString(value.id) && isString(value.type);
 };
 
-const isRecordIdentityOperation = (operation: unknown): operation is RecordIdentityOperation => {
+export const isRecordIdentityOperation = (operation: unknown): operation is RecordIdentityOperation => {
   return isOperation(operation) && isRecordIdentity(operation.record);
 };
 
-const isTransform = (value: unknown): value is Transform & PlainObject => {
+export const isTransform = (value: unknown): value is Transform & PlainObject => {
   return isPlainObject(value) && isString(value.id) && Array.isArray(value.operations);
 };
 
-const isUpdateRecordOperation = (value: unknown): value is UpdateRecordOperation & PlainObject => {
+export const isUpdateRecordOperation = (value: unknown): value is UpdateRecordOperation & PlainObject => {
   return isRecordIdentityOperation(value) && value.op === 'updateRecord';
 };
 
-const coerceOrbitCatchReasonAsError = (value: unknown, defMessage: string = 'An unknown error occured.'): Error => {
+export const coerceOrbitCatchReasonAsError = (value: unknown, defMessage: string = 'An unknown error occured.'): Error => {
   const resolveError = (): Undefinable<Error> => {
     if (isNil(value)) {
       return undefined;
@@ -47,15 +66,3 @@ const coerceOrbitCatchReasonAsError = (value: unknown, defMessage: string = 'An 
   };
   return resolveError() || new Error(defMessage);
 };
-
-export {
-  coerceOrbitCatchReasonAsError,
-  isOperation,
-  isOrbitException,
-  isRecordIdentity,
-  isRecordIdentityOperation,
-  isTransform,
-  isUpdateRecordOperation,
-};
-
-export type { RecordIdentityOperation };
