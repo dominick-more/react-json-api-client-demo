@@ -21,12 +21,7 @@ import { Undefinable } from '~/types/common/commonJs';
 import { createAndPredicate } from '~/utils/common/predicates';
 import { coerceAsArray, coerceAsReadonlyObject } from '~/utils/common/transformers';
 import { isBlankString, isNil, isPlainObject } from '~/utils/common/typeGuards';
-import {
-  coerceOrbitCatchReasonAsError,
-  createSourceNamesPredicate,
-  createSourceRequestQueueCurrentTaskTypePredicate,
-  isNetworkError,
-} from '~/utils/orbit-js/orbitJSUtils';
+import { coerceOrbitCatchReasonAsError, createSourceNamesPredicate, isNetworkError } from '~/utils/orbit-js/orbitJSUtils';
 import StoreComponent from './storeComponent';
 import './storeListComponent.css';
 import { ClickRatingHandler, normalizeRating } from './storeRatingComponent';
@@ -62,9 +57,6 @@ const defaultStore: Store = {
   country: undefined,
   books: [],
 };
-
-const regExpQueryOrPull = /^\s*(query|pull)\s*/i;
-const regExpPush = /^\s*push\s*/i;
 
 type PushRecoveryStrategy = 'requeue' | 'shift';
 type QueryStrategy = 'cache' | 'sync';
@@ -109,9 +101,7 @@ const StoreListComponent = (): React.ReactElement => {
         logger.debug(`Pullable fail listener triggering source recovery strategy '${recoveryStrategy}'.`);
         debouncedSetPendingPushRecoveryStrategy(recoveryStrategy);
       } else {
-        logger.error(
-          `Pullable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`
-        );
+        logger.error(`Pullable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`);
       }
     };
   }, []);
@@ -136,9 +126,7 @@ const StoreListComponent = (): React.ReactElement => {
         logger.debug(`Pushable fail listener triggering source recovery strategy '${recoveryStrategy}'.`);
         debouncedSetPendingPushRecoveryStrategy(recoveryStrategy);
       } else {
-        logger.error(
-          `Pushable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`
-        );
+        logger.error(`Pushable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`);
       }
     };
   }, []);
@@ -380,26 +368,11 @@ const StoreListComponent = (): React.ReactElement => {
         });
       })
       .catch((error) => {
-        if (isNetworkError(error)) {
-          logger.warn('Unsuccessfully completed bookStore source mapping with network error. Removing query from queue.');
-          const remoteRequestQueueStatus = getSourceRequestQueueStatus('remote');
-          const queryStrategy: QueryStrategy = remoteRequestQueueStatus.hasError ? 'cache' : 'sync';
-          const predicatedRecoveryInstructions: PredicatedSourceInstructions<Required<TaskQueueRecoveryInstructions>> = {
-            predicate: createAndPredicate(
-              createSourceNamesPredicate('memory', 'remote'),
-              createSourceRequestQueueCurrentTaskTypePredicate(regExpQueryOrPull)
-            ),
-            instructions: {
-              autoProcessControl: (status): boolean => {
-                return status === 'success';
-              },
-              strategy: 'shift',
-            },
-          };
-          invokeRecoverRequestQueue({ predicatedRecoveryInstructions, queryStrategy });
-        } else {
-          logger.warn('Unhandled bookStore source mapping error.', error);
-        }
+        logger.error(
+          `Unhandled bookStore query error. Async pullable errors should be handled in OnPullableFailListener${
+            coerceOrbitCatchReasonAsError(error).message
+          }`
+        );
         bookStoreActionDispatch({
           type: 'complete',
           payload: {
@@ -437,28 +410,11 @@ const StoreListComponent = (): React.ReactElement => {
           logger.debug('Successfully completed bookStore source update.');
         })
         .catch((error) => {
-          if (isNetworkError(error)) {
-            logger.warn('Unsuccessfully completed bookStore source update with network error. Requeueing update.');
-            const queryStrategy: QueryStrategy = 'sync';
-            const predicatedRecoveryInstructions: PredicatedSourceInstructions<Required<TaskQueueRecoveryInstructions>> = {
-              predicate: createAndPredicate(
-                createSourceNamesPredicate('remote'),
-                createSourceRequestQueueCurrentTaskTypePredicate(regExpPush)
-              ),
-              instructions: {
-                autoProcessControl: (status): boolean => {
-                  return status === 'success';
-                },
-                strategy: 'requeue',
-              },
-            };
-            invokeRecoverRequestQueue({
-              predicatedRecoveryInstructions,
-              queryStrategy,
-            });
-          } else {
-            logger.warn('Unhandled update source error.', error);
-          }
+          logger.error(
+            `Unhandled bookStore source update. Async remote errors should be handled in OnPushableableFailListener${
+              coerceOrbitCatchReasonAsError(error).message
+            }`
+          );
           bookStoreActionDispatch({
             type: 'complete',
             payload: {
