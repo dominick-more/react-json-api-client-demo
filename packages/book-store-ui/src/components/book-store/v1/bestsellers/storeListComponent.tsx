@@ -18,15 +18,9 @@ import { Book } from '~/types/book-store/v1/book';
 import { Country } from '~/types/book-store/v1/country';
 import { Store } from '~/types/book-store/v1/store';
 import { Undefinable } from '~/types/common/commonJs';
-import { createAndPredicate } from '~/utils/common/predicates';
-import { coerceAsArray, coerceAsReadonlyObject } from '~/utils/common/transformers';
+import { coerceAsArray, coerceAsDefault, coerceAsReadonlyObject } from '~/utils/common/transformers';
 import { isBlankString, isNil, isPlainObject } from '~/utils/common/typeGuards';
-import {
-  coerceOrbitCatchReasonAsError,
-  createSourceNamesPredicate,
-  createSourceRequestQueueCurrentTaskTypePredicate,
-  isNetworkError,
-} from '~/utils/orbit-js/orbitJSUtils';
+import { coerceOrbitCatchReasonAsError, createSourceNamesPredicate, isNetworkError } from '~/utils/orbit-js/orbitJSUtils';
 import StoreComponent from './storeComponent';
 import './storeListComponent.css';
 import { ClickRatingHandler, normalizeRating } from './storeRatingComponent';
@@ -64,9 +58,8 @@ const defaultStore: Store = {
 };
 
 const regExpQueryOrPull = /^\s*(query|pull)\s*/i;
-const regExpPush = /^\s*push\s*/i;
 
-type PushRecoveryStrategy = 'requeue' | 'shift';
+type RemoteFailSource = 'pullable' | 'pushable';
 type QueryStrategy = 'cache' | 'sync';
 
 const isSourceChanged = (results?: SourceChangeResult[]): boolean => {
@@ -77,15 +70,16 @@ const isSourceChanged = (results?: SourceChangeResult[]): boolean => {
 };
 
 const StoreListComponent = (): React.ReactElement => {
-  const [pendingPushRecoveryStrategy, setPendingPushRecoveryStrategy] =
-    useState<Undefinable<PushRecoveryStrategy>>(undefined);
+  const [remoteFailSource, setRemoteFailSource] = useState<Undefinable<RemoteFailSource>>(undefined);
   const [pendingQueryStrategy, setPendingQueryStrategy] = useState<Undefinable<QueryStrategy>>('sync');
 
-  const debouncedSetPendingPushRecoveryStrategy = useMemo(() => {
-    const debounceWait = 15000;
+  const debouncedSetPendingQueryStrategy = useMemo(() => {
+    const debounceWait = 20;
     return _debounce(
-      (strategy: PushRecoveryStrategy) =>
-        setPendingPushRecoveryStrategy((prevStrategy) => (prevStrategy !== strategy ? strategy : prevStrategy)),
+      (queryStrategy: Undefinable<QueryStrategy>) =>
+        setPendingQueryStrategy((prevQueryStrategy) =>
+          prevQueryStrategy !== queryStrategy ? queryStrategy : prevQueryStrategy
+        ),
       debounceWait
     );
   }, []);
@@ -95,7 +89,7 @@ const StoreListComponent = (): React.ReactElement => {
   const OnUpdateSuccessListener = useMemo((): Listener => {
     return () => {
       const queryStrategy = 'cache';
-      logger.debug(`Update success listener triggering source query with '${queryStrategy}'.`);
+      logger.debug(`Update success listener triggering setPendingQueryStrategy '${queryStrategy}'.`);
       setPendingQueryStrategy(queryStrategy);
     };
   }, []);
@@ -105,13 +99,11 @@ const StoreListComponent = (): React.ReactElement => {
   const OnPullableFailListener = useMemo((): Listener => {
     return (_transform: Transform, exception: OrbitException) => {
       if (isNetworkError(exception)) {
-        const recoveryStrategy = 'shift';
-        logger.debug(`Pullable fail listener triggering source recovery strategy '${recoveryStrategy}'.`);
-        debouncedSetPendingPushRecoveryStrategy(recoveryStrategy);
+        const failSource = 'pullable';
+        logger.debug(`Pullable fail listener triggering setRemoteFailSource '${failSource}'.`);
+        setRemoteFailSource(failSource);
       } else {
-        logger.error(
-          `Pullable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`
-        );
+        logger.error(`Pullable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`);
       }
     };
   }, []);
@@ -121,8 +113,8 @@ const StoreListComponent = (): React.ReactElement => {
   const OnPullableSuccessListener = useMemo((): Listener => {
     return () => {
       const queryStrategy = 'cache';
-      logger.debug(`Pullable success listener triggering source query with '${queryStrategy}'.`);
-      setPendingQueryStrategy(queryStrategy);
+      logger.debug(`Pullable success listener triggering debouncedSetPendingQueryStrategy '${queryStrategy}'.`);
+      debouncedSetPendingQueryStrategy(queryStrategy);
     };
   }, []);
 
@@ -132,13 +124,11 @@ const StoreListComponent = (): React.ReactElement => {
   const OnPushableFailListener = useMemo((): Listener => {
     return (_transform: Transform, exception: OrbitException) => {
       if (isNetworkError(exception)) {
-        const recoveryStrategy = 'requeue';
-        logger.debug(`Pushable fail listener triggering source recovery strategy '${recoveryStrategy}'.`);
-        debouncedSetPendingPushRecoveryStrategy(recoveryStrategy);
+        const failSource = 'pushable';
+        logger.debug(`Pushable fail listener triggering setRemoteFailSource '${failSource}'.`);
+        setRemoteFailSource(failSource);
       } else {
-        logger.error(
-          `Pushable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`
-        );
+        logger.error(`Pushable fail listener event unhandled: '${coerceOrbitCatchReasonAsError(exception).message}'.`);
       }
     };
   }, []);
@@ -149,8 +139,8 @@ const StoreListComponent = (): React.ReactElement => {
   const OnPushableSuccessListener = useMemo((): Listener => {
     return () => {
       const queryStrategy = 'cache';
-      logger.debug(`Pushable success listener triggering source query with '${queryStrategy}'.`);
-      setPendingQueryStrategy(queryStrategy);
+      logger.debug(`Pushable success listener triggering debouncedSetPendingQueryStrategy '${queryStrategy}'.`);
+      debouncedSetPendingQueryStrategy(queryStrategy);
     };
   }, []);
 
@@ -178,41 +168,6 @@ const StoreListComponent = (): React.ReactElement => {
     },
     useOrbitJsContext: useBookStoreOrbitJsContext,
   });
-
-  const invokeRecoverRequestQueue = useMemo(() => {
-    const debounceWait = 15000;
-    const debouncedSetPendingQueryStrategy = _debounce(
-      (strategy: Undefinable<QueryStrategy>): void => {
-        logger.debug(`Setting queryStrategy '${JSON.stringify(strategy)}' after ${debounceWait} milliseconds.`);
-        setPendingQueryStrategy(strategy);
-      },
-      debounceWait,
-      { trailing: true }
-    );
-    return (params?: {
-      predicatedRecoveryInstructions: PredicatedSourceInstructions<TaskQueueRecoveryInstructions>;
-      queryStrategy?: QueryStrategy;
-    }): (() => void) => {
-      if (isNil(params)) {
-        logger.debug('No RecoverRequestQueue parameters defined. Doing nothing.');
-      } else {
-        const recoveryStrategy = params.predicatedRecoveryInstructions.instructions.strategy;
-        logger.debug(`Invoking recoverRequestQueue with recoveryStrategy '${recoveryStrategy}'.`);
-        recoverRequestQueue(params.predicatedRecoveryInstructions).then((results) => {
-          if (isSourceChanged(results)) {
-            logger.debug(`Invoking debounced setQueryStrategy '${JSON.stringify(params.queryStrategy)}'.`);
-            debouncedSetPendingQueryStrategy(params.queryStrategy);
-          } else {
-            logger.debug(`Source requestQueues unchanged, so not querying.`);
-          }
-        });
-      }
-      return (): void => {
-        logger.debug('Cancelling debounced setQueryStrategy.');
-        debouncedSetPendingQueryStrategy.cancel();
-      };
-    };
-  }, [recoverRequestQueue]);
 
   const invokeProcessRequestRequeue = useMemo(() => {
     const debounceWait = 15000;
@@ -312,29 +267,35 @@ const StoreListComponent = (): React.ReactElement => {
   }, [querySourceCache]);
 
   useEffect((): void => {
-    if (!pendingPushRecoveryStrategy) {
+    if (!remoteFailSource) {
       return;
     }
-    setPendingPushRecoveryStrategy(undefined);
+    setRemoteFailSource(undefined);
+    const remoteQueueStatus = getSourceRequestQueueStatus('remote');
+    if (!remoteQueueStatus.hasError) {
+      // If remoteQueue does not contain an error return.
+      return;
+    }
     const predicatedProcessInstructions: PredicatedSourceInstructions<TaskQueueProcessInstructions> = {
-      predicate: createAndPredicate(createSourceNamesPredicate('remote')),
+      predicate: createSourceNamesPredicate('remote'),
       instructions: {
         autoProcessControl: (status): boolean => {
           return status === 'success';
         },
       },
     };
+    const strategy = regExpQueryOrPull.test(coerceAsDefault(remoteQueueStatus.taskType, '')) ? 'shift' : 'requeue';
     const predicatedRecoveryInstructions: PredicatedSourceInstructions<TaskQueueRecoveryInstructions> = {
-      predicate: createAndPredicate(createSourceNamesPredicate('remote')),
+      predicate: createSourceNamesPredicate('remote'),
       instructions: {
-        autoProcessControl: (status): boolean => {
-          return status === 'success';
+        autoProcessControl: (): boolean => {
+          return false;
         },
-        strategy: pendingPushRecoveryStrategy,
+        strategy,
       },
     };
     invokeProcessRequestRequeue({ predicatedProcessInstructions, predicatedRecoveryInstructions });
-  }, [invokeProcessRequestRequeue, pendingPushRecoveryStrategy]);
+  }, [getSourceRequestQueueStatus, invokeProcessRequestRequeue, remoteFailSource]);
 
   // Execute orbit record to Store mapping on initial load and update
   useEffect((): void => {
@@ -380,26 +341,11 @@ const StoreListComponent = (): React.ReactElement => {
         });
       })
       .catch((error) => {
-        if (isNetworkError(error)) {
-          logger.warn('Unsuccessfully completed bookStore source mapping with network error. Removing query from queue.');
-          const remoteRequestQueueStatus = getSourceRequestQueueStatus('remote');
-          const queryStrategy: QueryStrategy = remoteRequestQueueStatus.hasError ? 'cache' : 'sync';
-          const predicatedRecoveryInstructions: PredicatedSourceInstructions<Required<TaskQueueRecoveryInstructions>> = {
-            predicate: createAndPredicate(
-              createSourceNamesPredicate('memory', 'remote'),
-              createSourceRequestQueueCurrentTaskTypePredicate(regExpQueryOrPull)
-            ),
-            instructions: {
-              autoProcessControl: (status): boolean => {
-                return status === 'success';
-              },
-              strategy: 'shift',
-            },
-          };
-          invokeRecoverRequestQueue({ predicatedRecoveryInstructions, queryStrategy });
-        } else {
-          logger.warn('Unhandled bookStore source mapping error.', error);
-        }
+        logger.error(
+          `Unhandled bookStore query error. Async pullable errors should be handled in OnPullableFailListener${
+            coerceOrbitCatchReasonAsError(error).message
+          }`
+        );
         bookStoreActionDispatch({
           type: 'complete',
           payload: {
@@ -407,16 +353,16 @@ const StoreListComponent = (): React.ReactElement => {
           },
         });
       });
-  }, [getSourceRequestQueueStatus, invokeRecoverRequestQueue, pendingQueryStrategy, setAutoProcess, storeMapper]);
+  }, [getSourceRequestQueueStatus, pendingQueryStrategy, setAutoProcess, storeMapper]);
 
   // Cancel invokeRecoverRequestQueue on unmount
   useEffect(() => {
     const cancelInvokeRecoverProcessRequestQueue = (): void => {
+      debouncedSetPendingQueryStrategy.cancel();
       invokeProcessRequestRequeue()();
-      invokeRecoverRequestQueue()();
     };
     return () => cancelInvokeRecoverProcessRequestQueue();
-  }, [invokeProcessRequestRequeue, invokeRecoverRequestQueue]);
+  }, [invokeProcessRequestRequeue, debouncedSetPendingQueryStrategy]);
 
   // Memoize ClickRatingHandler handler
   const onClickRating: ClickRatingHandler = useMemo((): ClickRatingHandler => {
@@ -437,28 +383,11 @@ const StoreListComponent = (): React.ReactElement => {
           logger.debug('Successfully completed bookStore source update.');
         })
         .catch((error) => {
-          if (isNetworkError(error)) {
-            logger.warn('Unsuccessfully completed bookStore source update with network error. Requeueing update.');
-            const queryStrategy: QueryStrategy = 'sync';
-            const predicatedRecoveryInstructions: PredicatedSourceInstructions<Required<TaskQueueRecoveryInstructions>> = {
-              predicate: createAndPredicate(
-                createSourceNamesPredicate('remote'),
-                createSourceRequestQueueCurrentTaskTypePredicate(regExpPush)
-              ),
-              instructions: {
-                autoProcessControl: (status): boolean => {
-                  return status === 'success';
-                },
-                strategy: 'requeue',
-              },
-            };
-            invokeRecoverRequestQueue({
-              predicatedRecoveryInstructions,
-              queryStrategy,
-            });
-          } else {
-            logger.warn('Unhandled update source error.', error);
-          }
+          logger.error(
+            `Unhandled bookStore source update. Async remote errors should be handled in OnPushableableFailListener${
+              coerceOrbitCatchReasonAsError(error).message
+            }`
+          );
           bookStoreActionDispatch({
             type: 'complete',
             payload: {
@@ -467,7 +396,7 @@ const StoreListComponent = (): React.ReactElement => {
           });
         });
     };
-  }, [invokeRecoverRequestQueue, querySourceCache, updateSource]);
+  }, [querySourceCache, updateSource]);
 
   // Reload bookstores on demand
   const onClickReloadBookstores = useMemo((): React.MouseEventHandler<HTMLButtonElement> => {
