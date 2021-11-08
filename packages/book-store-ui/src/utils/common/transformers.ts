@@ -1,5 +1,5 @@
 import { Nillable, Undefinable } from '~/types/common/commonJs';
-import { isNil } from './typeGuards';
+import { isFunction, isNil } from './typeGuards';
 
 const emptyArray: ReadonlyArray<any> = Object.freeze([]);
 const emptyObject: Readonly<any> = Object.freeze({});
@@ -12,6 +12,13 @@ export const coerceAsArray = <T = any>(value: Nillable<T | T[]>): T[] => {
     return [...value];
   }
   return [value];
+};
+
+export const coerceAsDefault = <T>(value: Nillable<T>, def: T | (() => T)): T => {
+  if (!isNil(value)) {
+    return value;
+  }
+  return isFunction(def) ? def() : def;
 };
 
 export const coerceAsReadonlyArray = <T = any>(value: Nillable<T[]>): ReadonlyArray<T> => {

@@ -4,6 +4,7 @@ import JSONAPISource, { JSONAPISerializer } from '@orbit/jsonapi';
 import { Schema } from '@orbit/data';
 import logger from 'loglevel';
 import { OrbitJsSourceNames } from '~/types/orbit-js/orbitJsContextValue';
+import { coerceOrbitCatchReasonAsError, isNetworkError } from './orbitJSUtils';
 
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["resourceRelationship", "resourceAttribute"] }] */
 
@@ -54,7 +55,17 @@ const createJsonApiCoordinator = (params: CreateJsonApiCoordinatorParams): Coord
       on: 'beforeQuery',
       target: OrbitJsSourceNames.remote,
       action: 'pull',
-      blocking: true,
+      blocking: false,
+      catch: (error: any) => {
+        if (!isNetworkError(error)) {
+          throw error;
+        }
+        // A network http fetch error must be caught here as the error does not seem to be handled by orbit.
+        // Even though intercepted, the same error should be passed later to a subscribed Pullable 'fail' listener.
+        logger.warn(
+          `handleFetchResponseError intercepted in remote target pull: ${coerceOrbitCatchReasonAsError(error).message}`
+        );
+      },
     })
   );
 
@@ -67,7 +78,14 @@ const createJsonApiCoordinator = (params: CreateJsonApiCoordinatorParams): Coord
       action: 'push',
       blocking: false,
       catch: (error: any) => {
-        logger.warn('Error captured in remote target push.', error);
+        if (!isNetworkError(error)) {
+          throw error;
+        }
+        // A network http fetch error must be caught here as the error does not seem to be handled by orbit.
+        // Even though intercepted, the same error should be passed later to a subscribed Pullable 'fail' listener.
+        logger.warn(
+          `handleFetchResponseError intercepted in remote target push: ${coerceOrbitCatchReasonAsError(error).message}`
+        );
       },
     })
   );
