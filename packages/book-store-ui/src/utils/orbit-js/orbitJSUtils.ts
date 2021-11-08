@@ -1,5 +1,5 @@
 import { Exception as OrbitException } from '@orbit/core';
-import { Operation, RecordIdentity, Source, Transform, UpdateRecordOperation } from '@orbit/data';
+import { Operation, Query, QueryExpression, RecordIdentity, Source, Transform, UpdateRecordOperation } from '@orbit/data';
 import { PlainObject, Predicate, Undefinable, ValueOf } from '~/types/common/commonJs';
 import { OrbitJsSourceNames } from '~/types/orbit-js/orbitJsContextValue';
 import { arrayIncludesValue, isBlankString, isError, isNil, isPlainObject, isString } from '~/utils/common/typeGuards';
@@ -28,12 +28,26 @@ export const isNetworkError = (exceptionOrError: any): boolean => {
   return isError(maybeError) && networkErrorMessageRegExp.test(maybeError.message);
 };
 
+export const isQueryExpression = (value: unknown): value is QueryExpression & PlainObject => {
+  return isPlainObject(value) && isString(value.op) && !isBlankString(value.op);
+};
+
 export const isOperation = (value: unknown): value is Operation & PlainObject => {
-  return isPlainObject(value) && isString(value.op);
+  return isPlainObject(value) && isString(value.op) && !isBlankString(value.op);
+};
+
+export const isQuery = (value: unknown): value is Query & PlainObject => {
+  return isPlainObject(value) && isQueryExpression(value.expression);
 };
 
 export const isRecordIdentity = (value: unknown): value is RecordIdentity & PlainObject => {
-  return isPlainObject(value) && isString(value.id) && isString(value.type);
+  return (
+    isPlainObject(value) &&
+    isString(value.id) &&
+    !isBlankString(value.id) &&
+    isString(value.type) &&
+    !isBlankString(value.type)
+  );
 };
 
 export const isRecordIdentityOperation = (operation: unknown): operation is RecordIdentityOperation => {
@@ -41,7 +55,7 @@ export const isRecordIdentityOperation = (operation: unknown): operation is Reco
 };
 
 export const isTransform = (value: unknown): value is Transform & PlainObject => {
-  return isPlainObject(value) && isString(value.id) && Array.isArray(value.operations);
+  return isPlainObject(value) && isString(value.id) && !isBlankString(value.id) && Array.isArray(value.operations);
 };
 
 export const isUpdateRecordOperation = (value: unknown): value is UpdateRecordOperation & PlainObject => {

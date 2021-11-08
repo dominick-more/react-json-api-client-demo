@@ -1,10 +1,12 @@
 import Coordinator, { RequestStrategy, SyncStrategy } from '@orbit/coordinator';
+import { Task } from '@orbit/core';
+import { Query, Schema } from '@orbit/data';
 import MemorySource from '@orbit/memory';
 import JSONAPISource, { JSONAPISerializer } from '@orbit/jsonapi';
-import { Schema } from '@orbit/data';
+import _isEqual from 'lodash/isEqual';
 import logger from 'loglevel';
 import { OrbitJsSourceNames } from '~/types/orbit-js/orbitJsContextValue';
-import { coerceOrbitCatchReasonAsError, isNetworkError } from './orbitJSUtils';
+import { coerceOrbitCatchReasonAsError, isNetworkError, isQuery } from './orbitJSUtils';
 
 /* eslint class-methods-use-this: ["error", { "exceptMethods": ["resourceRelationship", "resourceAttribute"] }] */
 
@@ -56,7 +58,7 @@ const createJsonApiCoordinator = (params: CreateJsonApiCoordinatorParams): Coord
       target: OrbitJsSourceNames.remote,
       action: 'pull',
       blocking: false,
-      catch: (error: any) => {
+      catch(this: RequestStrategy, error: any): void {
         if (!isNetworkError(error)) {
           throw error;
         }
@@ -65,6 +67,16 @@ const createJsonApiCoordinator = (params: CreateJsonApiCoordinatorParams): Coord
         logger.warn(
           `handleFetchResponseError intercepted in remote target pull: ${coerceOrbitCatchReasonAsError(error).message}`
         );
+      },
+      filter(this: RequestStrategy, query: Query): boolean {
+        if (!isQuery(query)) {
+          return true;
+        }
+        // Do not push a query to the remote requestQueue if it already exists.
+        const queryExists = this.target.requestQueue.entries.some((task: Task) => {
+          return isQuery(task.data) && _isEqual(task.data.expression, query.expression);
+        });
+        return !queryExists;
       },
     })
   );
@@ -77,7 +89,7 @@ const createJsonApiCoordinator = (params: CreateJsonApiCoordinatorParams): Coord
       target: OrbitJsSourceNames.remote,
       action: 'push',
       blocking: false,
-      catch: (error: any) => {
+      catch(this: RequestStrategy, error: any): void {
         if (!isNetworkError(error)) {
           throw error;
         }

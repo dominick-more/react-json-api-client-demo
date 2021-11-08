@@ -342,7 +342,7 @@ const StoreListComponent = (): React.ReactElement => {
       })
       .catch((error) => {
         logger.error(
-          `Unhandled bookStore query error. Async pullable errors should be handled in OnPullableFailListener${
+          `Unhandled bookStore query error. Async pullable errors should be handled in OnPullableFailListener: ${
             coerceOrbitCatchReasonAsError(error).message
           }`
         );
@@ -384,7 +384,7 @@ const StoreListComponent = (): React.ReactElement => {
         })
         .catch((error) => {
           logger.error(
-            `Unhandled bookStore source update. Async remote errors should be handled in OnPushableableFailListener${
+            `Unhandled bookStore source update. Async remote errors should be handled in OnPushableableFailListener: ${
               coerceOrbitCatchReasonAsError(error).message
             }`
           );
