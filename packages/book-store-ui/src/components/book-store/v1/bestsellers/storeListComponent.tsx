@@ -171,7 +171,7 @@ const StoreListComponent = (): React.ReactElement => {
 
   const invokeProcessRequestRequeue = useMemo(() => {
     const debounceWait = 15000;
-    const debouncedProcessRequestQueueStrategy = _debounce(
+    const debouncedProcessRequestQueue = _debounce(
       (predicatedProcessInstructions: PredicatedSourceInstructions<TaskQueueProcessInstructions>): void => {
         logger.debug(`Processing requestQueue sources after ${debounceWait} milliseconds.`);
         processRequestQueue(predicatedProcessInstructions)
@@ -203,14 +203,14 @@ const StoreListComponent = (): React.ReactElement => {
         logger.debug(`Recovering source requestQueue current task: '${recoveryStrategy}'.`);
         recoverRequestQueue(params.predicatedRecoveryInstructions).then((results) => {
           logger.debug(`Invoking debounced source requestQueue process: '${JSON.stringify(results)}'.`);
-          debouncedProcessRequestQueueStrategy(params.predicatedProcessInstructions);
+          debouncedProcessRequestQueue(params.predicatedProcessInstructions);
         });
       } else {
-        debouncedProcessRequestQueueStrategy(params.predicatedProcessInstructions);
+        debouncedProcessRequestQueue(params.predicatedProcessInstructions);
       }
       return (): void => {
-        logger.debug('Flushing debounced processQueueStrategy.');
-        debouncedProcessRequestQueueStrategy.flush();
+        logger.debug('Flushing debounced processRequestQueue.');
+        debouncedProcessRequestQueue.flush();
       };
     };
   }, [processRequestQueue, recoverRequestQueue]);
@@ -373,12 +373,12 @@ const StoreListComponent = (): React.ReactElement => {
         return;
       }
       const normalizedRating = normalizeRating(ratingValue);
-      const effectiveRating =
+      const rating =
         storeRecord.attributes?.rating === normalizedRating && normalizedRating >= 1
           ? normalizedRating - 1
           : normalizedRating;
       logger.debug('Beginning bookStore source update.');
-      updateSource(_merge({ ...storeRecord }, { attributes: { rating: effectiveRating } }))
+      updateSource(_merge({ ...storeRecord }, { attributes: { rating } }))
         .then(() => {
           logger.debug('Successfully completed bookStore source update.');
         })

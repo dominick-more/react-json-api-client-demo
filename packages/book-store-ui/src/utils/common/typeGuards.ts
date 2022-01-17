@@ -46,5 +46,5 @@ export const isBlankString = (value: Nillable<string>): value is Nil => {
 };
 
 export const arrayIncludesValue = <T, V extends T>(value: V, allValues?: Readonly<T[]>): value is V => {
-  return isNil(allValues) || allValues.includes(value);
+  return isUndefined(allValues) ? isUndefined(value) : allValues.includes(value);
 };

@@ -11,12 +11,13 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "dev": "cd src && cross-env NODE_ENV=development nodemon --experimental-specifier-resolution=node index.js",
+    "dev": "cd src && cross-env INPUT_PATH=./input.txt OUTPUT_PATH=./output.txt NODE_ENV=development nodemon --experimental-specifier-resolution=node index.js",
     "lint": "eslint --no-error-on-unmatched-pattern --ext js,json ./src ./tests",
     "lintfix": "eslint --no-error-on-unmatched-pattern --ext js,json --fix ./src ./tests",
     "test": "jest"
   },
   "dependencies": {
+    "concurrently": "^6.2.1",
     "fake-json-api-server": "^1.7.0",
     "yargs": "^17.2.1"
   },
